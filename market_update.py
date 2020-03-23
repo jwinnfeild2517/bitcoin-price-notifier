@@ -1,22 +1,34 @@
 import time
 from datetime import datetime
-from bitcoin_helper import BitcoinPrice, IFTTTNotifier
+from bitcoin_helper import BitcoinPrice, IFTTTNotifier, Timer
+
+
+BITCOIN_PRICE_EMERGENCY = 100000
 
 
 def main():
-    bitcoin_history = []
+
     while True:
-        price = BitcoinPrice() #create an instace of the Bitcoinprice() class
-        price = price.get_bitcoin_price() #call the get_bitcoin_price method on the instance
+        price = BitcoinPrice()   #create an instace of the Bitcoinprice() class
 
-        current_time = datetime.now().strftime('%a %I:%M %p') #pass the current time into a variable
+        price = price.get_bitcoin_price()   #call the get_bitcoin_price method on the instance
 
-        notfiy_me = IFTTTNotifier() #create and instance of the IFTTNotifier() class
-        notfiy_me.send_price_notification('price_notification', price, current_time) #call the send_price_notifcation() method and pass in the name of the event, price, and current_time
+        current_time = datetime.now().strftime('%a %I:%M %p')   #pass the current time into a variable
 
-        time.sleep(5 * 60) #sleep for 5 mins before send another notification
+        if price > BITCOIN_PRICE_EMERGENCY:
+            sent_notification = 'emergency_notfication'
+        else:
+            sent_notification = 'price_notification'
+
+        Notfiy_Me = IFTTTNotifier()   #create an instance of the IFTTNotifier() class
+
+        #call the send_price_notifcation() method and pass in the name of the event, price, and current_time
+        Notfiy_Me.send_price_notification(sent_notification, price, current_time)
+
+        send_review = Timer(20)
+        if send_review.time_elapsed() == True:
+            Notfiy_Me.send_price_notification(sent_notification, price, current_time) 
 
 
 if __name__ == '__main__':
     main()
-
